@@ -1,0 +1,88 @@
+Simple Commands:
+	Type "man" to see the manual.
+	Type "quit" to end the game.
+	Type "look" to look around.
+	Type "inventory" to check what you are currently holding.
+	Type "medcheck" to check your health.
+	Type "wait" to skip a turn.
+
+Managing containers:
+	Opening:
+		To open a container, you can simply type "open <container_name>".
+		
+		Containers can be opened while they are inside other containers
+		as long as the container they are in is open.
+		
+		You don't have to pick up a container to open it.
+		
+		Opening a container works the same whether it is in your
+		inventory, or in the room.
+	Closing:
+		To open a container, you can simply type "close <container_name>".
+		
+		Containers can be closed while they are inside other containers
+		as long as the container they are in is open.
+		
+		You don't have to pick up a container to close it.
+		
+		Closing a container works the same whether it is in your
+		inventory, or in the room.
+		
+Inventory Management:
+	All items in the game have a size and a weight and the player has a
+	size and weight capacity that can't be exceeded. There is no way
+	carry more weight than you can hold, but you can put items in
+	containers in order to hold more size than you normally could.
+	Containers have a limit on how much size they can hold, but no limit
+	on weight.
+	
+	To put an item into your inventory, type "take <item_name>" This
+	works whether an item is loose in the room, or inside an open
+	container. You can also take an item from a container by typing
+	"take <item_name> from <container_name>".
+	
+	You can drop items by typing "drop <item_name>". You can only drop
+	an item, if you have it in your inventory, not in any containers.
+	
+	You can put an item in a container by typing
+	"put <item_name> in <container_name>".
+	
+Light Sources:
+	Some rooms will be too dark to see without a light source. In order
+	to light a light source, if it doesn't need to be lit by anything
+	else, type "light <light_source>", if it does need to be lit by
+	something else, type "light <light_source> with <lighter>" a light
+	source has to be taken out of any containers to be lit with one
+	exception, matches will be taken out of matchbooks and lit
+	automatically if you type "light match with matchbook".
+	
+	light sources will burn out after a certain number of turns and not
+	be able to be relit. You can put out a light source by typing
+	"put out <light_source>". Most light sources can be relit as long
+	as they haven't burned out.
+
+Food:
+	Eating food can restore health; or if the food is a poison, take 
+	away health.
+	
+	To eat a food item type "eat <food_item>"
+	
+	Eating food at full health will not increase your health.
+	
+Combat:
+	There are three types of NPCs Passive, Neuteral, and Aggressive.
+	Passive NPCs will never attack you even if you attack them. Neuteral
+	NPCs will not attack you unless you attack them. and Aggressive NPCs
+	will attack you as soon as they see you.
+	
+	In order to attack an NPC, you need a weapon. to attack type:
+	"attack <enemy> with <weapon>"
+	
+Health:
+	To check your health type "medcheck" If your health drops to 0 or
+	lower, you will die, drop your items, and you will respawn in the
+	beginning location. You will slowly regenerate health naturally over
+	time.
+
+Travel:
+	To travel between locations, type "go <north|sout|east|west|up|down>"
