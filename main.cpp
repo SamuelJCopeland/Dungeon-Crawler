@@ -19,8 +19,11 @@
 * File: main.cpp
 */
 
+//NEED TO MAKE IT SO THAT YOU CAN'T ATTACK OR TAKE SOMETHING WHEN IT IS TOO DARK TO SEE ANYTHING. ALSO, MAKE IT SO THAT WHEN YOU ARE ATTACKED AND IT IS DARK, A DIFFERENT DESCRIPTION COMES UP
+
 using namespace std;
 
+//This function is run every round to make sure that the player is still alive
 void checkAlive(Player* x, Room* room, Player* player, vector<Room*> rooms) {
 	if (x != nullptr && !x->isAlive()) {
 		cout << "\n\nYou have died.\nWe will try to fix you up the best we can.\n\n";
@@ -141,23 +144,45 @@ int main() {
 	while (cont) {
 		bool newRoom = false;
 		getline(cin, userInput);
+
+		//Convert the user input to lowercase
+		for (int i = 0; i < userInput.size(); i++) {
+			userInput[i] = tolower(userInput[i]);
+		}
+
 		//Split the string into a vector of words
 		vector<string> commands = splitString(userInput, ' ');
 
+		//Depending on how many words are in the command, try different possible commands
 		switch (commands.size()) {
+		//0 words in the command
 		case 0:
 			cout << "Please enter a command:\n";
 			break;
+		//1 word in the command
 		case 1:
-			if (userInput == "man") {
+			//Show the Manual
+			if (userInput == "man" || userInput == "manual") {
 				cout << "Type \"quit\" to end the game.\n";
+				cout << "More information needs to be added to this.\n";
 				continue;
 			}
-			else if (userInput == "quit") {
-				cout << "Ending game...\n";
-				cont = false;
+			//Quit the game
+			else if (userInput == "quit" || userInput == "q") {
+				cout << "Are you sure you want to exit (y/n)?\n";
+				string answer;
+				getline(cin, answer);
+				if (answer == "y" || answer == "Y") {
+					cout << "Ending game...\n";
+					cont = false;
+				}
+				else {
+					cout << "Continuing the game...\n";
+					continue;
+				}
 			}
-			else if (userInput == "look") {
+			//Describe what the player can see
+			else if (userInput == "look" || userInput == "l") {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
 					cout << room->getDescription() << endl;
@@ -166,7 +191,8 @@ int main() {
 					cout << "You are dead.\n";
 				}
 			}
-			else if (userInput == "inventory") {
+			//Describe the player's inventory
+			else if (userInput == "inventory" || userInput == "i") {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
 					cout << "You are holding the following items: \n" + p->printInventory();
@@ -175,7 +201,8 @@ int main() {
 					cout << "You are dead.\n";
 				}
 			}
-			else if (userInput == "medcheck") {
+			//Describe the player's health
+			else if (userInput == "medcheck" || userInput == "health" || userInput == "hp") {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
 					cout << "You have " << p->getHP() << "/" << p->getMaxHealth() << " left.\n";
@@ -184,15 +211,19 @@ int main() {
 					cout << "You are dead.\n";
 				}
 			}
+			//Allow time to pass
 			else if (userInput == "wait") {
 				cout << "Time passes...\n";
 			}
+			//The command wasn't recognized
 			else {
 				cout << "Invalid command\n";
 				continue;
 			}
 			break;
+		//Two words in the command
 		case 2:
+			//Try to open a container object
 			if (commands[0] == "open") {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
@@ -232,6 +263,7 @@ int main() {
 				}
 
 			}
+			//try to close a container object
 			else if (commands[0] == "close") {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
@@ -263,6 +295,7 @@ int main() {
 					cout << "You are dead.\n";
 				}
 			}
+			//try to take an object
 			else if (commands[0] == "take") {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
@@ -315,6 +348,7 @@ int main() {
 					cout << "You are dead.\n";
 				}
 			}
+			//Try to drop an object that the player is holding
 			else if (commands[0] == "drop") {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
@@ -332,6 +366,7 @@ int main() {
 					cout << "You are dead.\n";
 				}
 			}
+			//Describe an object
 			else if (commands[0] == "examine") {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
