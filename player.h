@@ -82,7 +82,7 @@ public:
 		int agility = this->agility;
 		srand(time(NULL));
 
-		int damageChance = (int)rand() % 4 + 1 + enemy->getAgility() - ((int)rand() % 4 + 1 + agility);
+		int damageChance = rand() % 20 + 1 + enemy->getAgility() - (rand() % 20 + 1 + agility);
 
 		if (damageChance > 0) {
 			hitpoints -= damage;

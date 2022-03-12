@@ -13,7 +13,8 @@
 vector<Object*> Player::attack(Player* enemy, Object* weapon){
 	double damage = weapon->getDamage();
 	if (damage > 0) {
-		damage = damage * strength;
+		//Total damage = base weapon damage * strength + d4
+		damage = damage * strength + rand() % 4 + 1;
 		return enemy->takeHit(this, damage);
 	}
 	else {
