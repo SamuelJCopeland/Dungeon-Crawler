@@ -79,15 +79,12 @@ protected:
 class PC : public Player {
 public:
 	vector<Object*> takeHit(Player* enemy, double damage) {
-		int dodgeChance = this->agility;
-		if (dodgeChance < 0) {
-			dodgeChance = 0;
-		}
+		int agility = this->agility;
 		srand(time(NULL));
 
-		int damageChance = rand() % MAX_AGILITY + 1;
+		int damageChance = (int)rand() % 4 + 1 + enemy->getAgility() - ((int)rand() % 4 + 1 + agility);
 
-		if (damageChance > dodgeChance) {
+		if (damageChance > 0) {
 			hitpoints -= damage;
 			if (hitpoints <= 0) {
 				cout << "You died.\n";

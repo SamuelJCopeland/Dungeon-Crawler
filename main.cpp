@@ -19,9 +19,9 @@
 * File: main.cpp
 */
 
-//NEED TO MAKE IT SO THAT YOU CAN'T ATTACK OR TAKE SOMETHING WHEN IT IS TOO DARK TO SEE ANYTHING. ALSO, MAKE IT SO THAT WHEN YOU ARE ATTACKED AND IT IS DARK, A DIFFERENT DESCRIPTION COMES UP
-
 using namespace std;
+
+//NEED TO MAKE IT SO THAT WHEN A COMMAND FAILS, THE GAME CLOCK DOES NOT TICK
 
 //This function is run every round to make sure that the player is still alive
 void checkAlive(Player* x, Room* room, Player* player, vector<Room*> rooms) {
@@ -120,7 +120,7 @@ int main() {
 	
 
 	//Add a neuteral npc without a weapon
-	rooms[0]->addPlayer(new NPC("ninja", 50, 3.4, 30, 30, 70, NEUTERAL));
+	rooms[0]->addPlayer(new NPC("ninja", 50, 3.4, 15, 30, 70, NEUTERAL));
 	findPlayer("ninja", rooms[0]->getPlayers())->addObject(new Object("heavy_metal_ball", 50, 2, "The heavy_metal_ball is made out of an incredibly dense unidentifiable metal."));
 
 	//Add a new room and add paths that connects the two rooms
@@ -651,30 +651,36 @@ int main() {
 				Player* p = findPlayer("you", room->getPlayers());
 				if (p != nullptr) {
 					Player* e = findPlayer(commands[1], room->getPlayers());
+					bool isDark = room->is_dark();
 					if (e != nullptr) {
 						Object* w = findObject(commands[3], player->getInventory());
 
 						if (w != nullptr) {
-							vector<Object*> enemyInventory = player->attack(e, w);
-							for (Object* o : enemyInventory) {
-								room->addObject(o);
-							}
-							if (!e->isAlive()) {
-								bool isYou = e == player;
-								room->removePlayer(e);
-								if (isYou) {
-									cout << "\n\nYou have died.\nWe will try to fix you up the best we can.\n\n";
-									string junk;
-									getline(cin, junk);
-									//Reset the health of any players in that room
-									for (Player* pl : room->getPlayers()) {
-										pl->setHP(pl->getMaxHealth());
-									}
-									room = rooms[0];
-									player = new Player();
-									room->addPlayer(player);
-									cout << room->getDescription();
+							if (!isDark) {
+								vector<Object*> enemyInventory = player->attack(e, w);
+								for (Object* o : enemyInventory) {
+									room->addObject(o);
 								}
+								if (!e->isAlive()) {
+									bool isYou = e == player;
+									room->removePlayer(e);
+									if (isYou) {
+										cout << "\n\nYou have died.\nWe will try to fix you up the best we can.\n\n";
+										string junk;
+										getline(cin, junk);
+										//Reset the health of any players in that room
+										for (Player* pl : room->getPlayers()) {
+											pl->setHP(pl->getMaxHealth());
+										}
+										room = rooms[0];
+										player = new Player();
+										room->addPlayer(player);
+										cout << room->getDescription();
+									}
+								}
+							}
+							else {
+								cout << "It is too dark, you don't see a " + commands[1] + " here.\n";
 							}
 						}
 						else {
