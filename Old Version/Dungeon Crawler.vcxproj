@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{3ef14f3d-b125-436b-9d26-6ebe849ea57d}</ProjectGuid>
+    <ProjectGuid>{01e06a5b-799c-4b78-b821-e12308f78d9c}</ProjectGuid>
     <RootNamespace>DungeonCrawler</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -92,6 +92,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -139,8 +140,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="container.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="npc.cpp" />
+    <ClCompile Include="object.cpp" />
+    <ClCompile Include="player.cpp" />
+    <ClCompile Include="room.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="container.h" />
     <ClInclude Include="food.h" />
+    <ClInclude Include="gameClock.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="npc.h" />
     <ClInclude Include="object.h" />
@@ -148,14 +158,6 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="room.h" />
     <ClInclude Include="weapon.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="container.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="npc.cpp" />
-    <ClCompile Include="object.cpp" />
-    <ClCompile Include="player.cpp" />
-    <ClCompile Include="room.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
