@@ -9,6 +9,7 @@
 #define UP 8
 #define DOWN 9
 
+#include "parser.h"
 #include "gameClock.h"
 #include <map>
 
