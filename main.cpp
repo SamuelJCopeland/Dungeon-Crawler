@@ -152,6 +152,13 @@ int main() {
 		//Split the string into a vector of words
 		vector<string> commands = splitString(userInput, ' ');
 
+		//Remove "the"
+		for (int i = 0; i < commands.size(); i++) {
+			if (commands[i] == "the") {
+				commands.erase(commands.begin() + i);
+			}
+		}
+
 		//Depending on how many words are in the command, try different possible commands
 		switch (commands.size()) {
 		//0 words in the command
@@ -212,49 +219,50 @@ int main() {
 		case 2:
 			//Try to open a container object
 			if (commands[0] == "open") {
-				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					tempOb = recursiveFindByName(commands[1], room->getObjects());
+				tempOb = recursiveFindByName(commands[1], room->getObjects());
+				if (tempOb != nullptr) {
+					if (tempOb->open()) {
+						cout << "The " + commands[1] + " is open.\n";
+						if(tempOb->getInventory() != vector<Object*> ()){
+							cout << tempOb->printInventory("") << endl;
+						}
+							
+					}
+					else {
+						cout << "You can't open the " + commands[1] + ".\n";
+					}
+				}
+				else {
+					tempOb = recursiveFindByName(commands[1], player->getInventory());
 					if (tempOb != nullptr) {
 						if (tempOb->open()) {
 							cout << "The " + commands[1] + " is open.\n";
-							if(tempOb->getInventory() != vector<Object*> ()){
+							if (tempOb->getInventory() != vector<Object*>()) {
 								cout << tempOb->printInventory("") << endl;
 							}
-							
 						}
 						else {
 							cout << "You can't open the " + commands[1] + ".\n";
 						}
 					}
 					else {
-						tempOb = recursiveFindByName(commands[1], player->getInventory());
-						if (tempOb != nullptr) {
-							if (tempOb->open()) {
-								cout << "The " + commands[1] + " is open.\n";
-								if (tempOb->getInventory() != vector<Object*>()) {
-									cout << tempOb->printInventory("") << endl;
-								}
-							}
-							else {
-								cout << "You can't open the " + commands[1] + ".\n";
-							}
-						}
-						else {
-							cout << "There is no " + commands[1] + " here.\n";
-						}
+						cout << "There is no " + commands[1] + " here.\n";
 					}
 				}
-				else {
-					cout << "You are dead.\n";
-				}
-
 			}
 			//try to close a container object
 			else if (commands[0] == "close") {
-				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					tempOb = recursiveFindByName(commands[1], room->getObjects());
+				tempOb = recursiveFindByName(commands[1], room->getObjects());
+				if (tempOb != nullptr) {
+					if (tempOb->close()) {
+						cout << "The " + commands[1] + " is closed.\n";
+					}
+					else {
+						cout << "You can't close the " + commands[1] + ".\n";
+					}
+				}
+				else {
+					tempOb = recursiveFindByName(commands[1], player->getInventory());
 					if (tempOb != nullptr) {
 						if (tempOb->close()) {
 							cout << "The " + commands[1] + " is closed.\n";
@@ -264,98 +272,72 @@ int main() {
 						}
 					}
 					else {
-						tempOb = recursiveFindByName(commands[1], player->getInventory());
-						if (tempOb != nullptr) {
-							if (tempOb->close()) {
-								cout << "The " + commands[1] + " is closed.\n";
-							}
-							else {
-								cout << "You can't close the " + commands[1] + ".\n";
-							}
-						}
-						else {
-							cout << "There is no " + commands[1] + " here.\n";
-						}
+						cout << "There is no " + commands[1] + " here.\n";
 					}
-				}
-				else {
-					cout << "You are dead.\n";
 				}
 			}
 			//try to take an object
 			else if (commands[0] == "take") {
 				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					Object* container = nullptr;
-					tempOb = findObject(commands[1], room->getObjects());
-					if (tempOb != nullptr) {
-						if (player->addObject(tempOb)) {
-							room->removeObject(tempOb);
-							cout << "Taken\n";
-						}
-						else {
-							cout << "You can't pick up the " + commands[1] + " you are holding too much.\n";
-						}
-					}
-					else if (recursiveFindByName(commands[1], room->getObjects()) != nullptr) {
-						tempOb = recursiveFindByName(commands[1], room->getObjects());
-						for (Object* o : room->getObjects()) {
-							container = recursiveFindContainer(tempOb, o);
-							if (container != nullptr) {
-								cout << "Taken\n";
-								container->takeOut(tempOb);
-								player->addObject(tempOb);
-								break;
-							}
-						}
-						if (container == nullptr) {
-							cout << "There is no " + commands[1] + " here.\n";
-						}
-					}
-					else if (recursiveFindByName(commands[1], player->getInventory()) != nullptr) {
-						tempOb = recursiveFindByName(commands[1], player->getInventory());
-						for (Object* o : player->getInventory()) {
-							container = recursiveFindContainer(tempOb, o);
-							if (container != nullptr) {
-								cout << "Taken\n";
-								container->takeOut(tempOb);
-								player->addObject(tempOb);
-								break;
-							}
-						}
-						if (container == nullptr) {
-							cout << "There is no " + commands[1] + " here.\n";
-						}
+				Object* container = nullptr;
+				tempOb = findObject(commands[1], room->getObjects());
+				if (tempOb != nullptr) {
+					if (player->addObject(tempOb)) {
+						room->removeObject(tempOb);
+						cout << "Taken\n";
 					}
 					else {
+						cout << "You can't pick up the " + commands[1] + " you are holding too much.\n";
+					}
+				}
+				else if (recursiveFindByName(commands[1], room->getObjects()) != nullptr) {
+					tempOb = recursiveFindByName(commands[1], room->getObjects());
+					for (Object* o : room->getObjects()) {
+						container = recursiveFindContainer(tempOb, o);
+						if (container != nullptr) {
+							cout << "Taken\n";
+							container->takeOut(tempOb);
+							player->addObject(tempOb);
+							break;
+						}
+					}
+					if (container == nullptr) {
+						cout << "There is no " + commands[1] + " here.\n";
+					}
+				}
+				else if (recursiveFindByName(commands[1], player->getInventory()) != nullptr) {
+					tempOb = recursiveFindByName(commands[1], player->getInventory());
+					for (Object* o : player->getInventory()) {
+						container = recursiveFindContainer(tempOb, o);
+						if (container != nullptr) {
+							cout << "Taken\n";
+							container->takeOut(tempOb);
+							player->addObject(tempOb);
+							break;
+						}
+					}
+					if (container == nullptr) {
 						cout << "There is no " + commands[1] + " here.\n";
 					}
 				}
 				else {
-					cout << "You are dead.\n";
+					cout << "There is no " + commands[1] + " here.\n";
 				}
 			}
 			//Try to drop an object that the player is holding
 			else if (commands[0] == "drop") {
-				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					tempOb = findObject(commands[1], player->getInventory());
-					if (tempOb != nullptr) {
-						player->removeObject(tempOb);
-						room->addObject(tempOb);
-						cout << "Dropped\n";
-					}
-					else {
-						cout << "You are not holding the " + commands[1] + ".\n";
-					}
+				tempOb = findObject(commands[1], player->getInventory());
+				if (tempOb != nullptr) {
+					player->removeObject(tempOb);
+					room->addObject(tempOb);
+					cout << "Dropped\n";
 				}
 				else {
-					cout << "You are dead.\n";
+					cout << "You are not holding the " + commands[1] + ".\n";
 				}
 			}
 			//Describe an object
 			else if (commands[0] == "examine") {
-				Player* p = findPlayer("you", room->getPlayers());
 				tempOb = recursiveFindByName(commands[1], room->getObjects());
 				if (tempOb != nullptr) {
 					cout << tempOb->getDescription() << endl;
@@ -377,114 +359,151 @@ int main() {
 							cout << "There is no " + commands[1] + " here.\n";
 						}
 
-					}
-						
+					}						
 				}
 				continue;
 			}
 			else if (commands[0] == "eat") {
 				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					tempOb = findObject(commands[1], p->getInventory());
+				tempOb = findObject(commands[1], p->getInventory());
+				if (tempOb != nullptr) {
+					if (tempOb->eat(p)) {
+						cout << "You ate the " + tempOb->getName() + ".\n";
+						p->removeObject(tempOb);
+						delete tempOb;
+					}
+					else {
+						cout << "You can't eat the " + commands[1] + ".\n";
+					}
+				}
+				else {
+					cout << "There is no " + commands[1] + " here.\n";
+				}
+			}
+			else if (commands[0] == "light") {
+				Player* p = findPlayer("you", room->getPlayers());
+				tempOb = findObject(commands[1], player->getInventory());
+				if (tempOb != nullptr) {
+					if (tempOb->light(nullptr)) {
+						cout << "The " + splitString(tempOb->getName(), ' ')[0] + " is now lit.\n";
+						if (room->is_dark()) {
+							room->setDark(false);
+							cout << room->getDescription() << endl;
+						}
+					}
+					else {
+						cout << "You can't light the " + tempOb->getName() + "\n";
+					}
+				}
+				else {
+					tempOb = recursiveFindByName(commands[1], room->getObjects());
+						
 					if (tempOb != nullptr) {
-						if (tempOb->eat(p)) {
-							cout << "You ate the " + tempOb->getName() + ".\n";
-							p->removeObject(tempOb);
-							delete tempOb;
+						if (player->addObject(tempOb)) {
+							room->removeObject(tempOb);
+							cout << "Taken\n";
+							Object* container = nullptr;
+							for (Object* ob : room->getObjects()) {
+								container = recursiveFindContainer(tempOb, ob);
+								if (container != nullptr) {
+									container->takeOut(tempOb);
+									break;
+								}
+							}
+							if (tempOb->light(nullptr)) {
+								cout << "The " + splitString(tempOb->getName(), ' ')[0] + " is now lit.\n";
+								if (room->is_dark()) {
+									room->setDark(false);
+									cout << room->getDescription() << endl;
+								}
+							}
+							else {
+								cout << "You can't light the " + tempOb->getName() + "\n";
+							}
 						}
 						else {
-							cout << "You can't eat the " + commands[1] + ".\n";
+							cout << "You can't pick up the " + commands[1] + " you are holding too much.\n";
 						}
 					}
 					else {
 						cout << "There is no " + commands[1] + " here.\n";
 					}
 				}
-				else {
-					cout << "You are dead.\n";
-				}
-			}
-			else if (commands[0] == "light") {
-				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					tempOb = findObject(commands[1], player->getInventory());
-					if (tempOb != nullptr) {
-						if (tempOb->light(nullptr)) {
-							cout << "The " + splitString(tempOb->getName(), ' ')[0] + " is now lit.\n";
-							if (room->is_dark()) {
-								room->setDark(false);
-								cout << room->getDescription() << endl;
-							}
-						}
-						else {
-							cout << "You can't light the " + tempOb->getName() + "\n";
-						}
-					}
-					else {
-						tempOb = recursiveFindByName(commands[1], room->getObjects());
-						
-						if (tempOb != nullptr) {
-							if (player->addObject(tempOb)) {
-								room->removeObject(tempOb);
-								cout << "Taken\n";
-								Object* container = nullptr;
-								for (Object* ob : room->getObjects()) {
-									container = recursiveFindContainer(tempOb, ob);
-									if (container != nullptr) {
-										container->takeOut(tempOb);
-										break;
-									}
-								}
-								if (tempOb->light(nullptr)) {
-									cout << "The " + splitString(tempOb->getName(), ' ')[0] + " is now lit.\n";
-									if (room->is_dark()) {
-										room->setDark(false);
-										cout << room->getDescription() << endl;
-									}
-								}
-								else {
-									cout << "You can't light the " + tempOb->getName() + "\n";
-								}
-							}
-							else {
-								cout << "You can't pick up the " + commands[1] + " you are holding too much.\n";
-							}
-						}
-						else {
-							cout << "There is no " + commands[1] + " here.\n";
-						}
-					}
-				}
-				else {
-					cout << "You are dead.\n";
-				}
 			}
 			else if (commands[0] == "go") {
-				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					if (dirMap.find(commands[1]) != dirMap.end()) {
-						Room* origRoom = room;
-						for (Path* p : room->getPaths()) {
-							if (p->getDir() == dirMap[commands[1]]) {
-								room = p->travel();
-								room->addPlayer(player);
-								origRoom->removePlayer(player);
-								clock->updateLights(origRoom, origRoom->getPlayers());
-								clock->updateLights(room, room->getPlayers());
-								cout << room->getDescription() << endl;
-								newRoom = true;
-								break;
+				if (dirMap.find(commands[1]) != dirMap.end()) {
+					Room* origRoom = room;
+					for (Path* p : room->getPaths()) {
+						if (p->getDir() == dirMap[commands[1]]) {
+							room = p->travel();
+							room->addPlayer(player);
+							origRoom->removePlayer(player);
+							clock->updateLights(origRoom, origRoom->getPlayers());
+							clock->updateLights(room, room->getPlayers());
+							cout << room->getDescription() << endl;
+							newRoom = true;
+							break;
+						}
+					}
+					if (room == origRoom) {
+						cout << "There is no path to your " + commands[1] + ".\n";
+					}
+				}
+				else {
+					cout << "Invalid direction.\n";
+				}
+			}
+			else if (commands[0] == "attack") {
+				//NEED TO WORK ON THIS CASE... WAY TOO MANY EDGE CASES
+				cout << "Attack with what?" << endl;
+				string weapon;
+				getline(cin, weapon);
+				for (int i = 0; i < weapon.size(); i++) {
+					weapon[i] = tolower(weapon[i]);
+				}
+
+				Player* e = findPlayer(commands[1], room->getPlayers());
+				bool isDark = room->is_dark();
+				if (e != nullptr) {
+					Object* w = findObject(weapon, player->getInventory());
+
+					if (w != nullptr) {
+						if (!isDark) {
+							vector<Object*> enemyInventory = player->attack(e, w);
+							for (Object* o : enemyInventory) {
+								room->addObject(o);
+							}
+							if (!e->isAlive()) {
+								bool isYou = e == player;
+								room->removePlayer(e);
+								if (isYou) {
+									cout << "\n\nYou have died.\nWe will try to fix you up the best we can.\n\n";
+									string junk;
+									getline(cin, junk);
+									//Reset the health of any players in that room
+									for (Player* pl : room->getPlayers()) {
+										pl->setHP(pl->getMaxHealth());
+									}
+									room = rooms[0];
+									player = new Player();
+									room->addPlayer(player);
+									cout << room->getDescription();
+								}
 							}
 						}
-						if (room == origRoom) {
-							cout << "There is no path to your " + commands[1] + ".\n";
+						else {
+							cout << "It is too dark, you don't see a " + commands[1] + " here.\n";
 						}
 					}
 					else {
-						cout << "Invalid direction.\n";
+						cout << "You are not holding the " + weapon + ".\n";
 					}
 				}
+				else {
+					cout << "There is no " + commands[1] + " here.\n";
+				}
 			}
+			//The command wasn't recognized
 			else {
 				cout << "Invalid command\n";
 				continue;
@@ -492,58 +511,76 @@ int main() {
 			break;
 		case 3:
 			if (commands[0] + " " + commands[1] == "put out") {
-				if (findPlayer("you", room->getPlayers()) != nullptr) {
-					tempOb = findObject(commands[2], player->getInventory());
-					if (tempOb != nullptr) {
-						if (tempOb->putOut()) {
-							cout << "The " + splitString(tempOb->getName(), ' ')[0] + " is now out.\n";
-						}
-						else {
-							cout << "The " + commands[2] + " is not lit.\n";
-						}
+				tempOb = findObject(commands[2], player->getInventory());
+				if (tempOb != nullptr) {
+					if (tempOb->putOut()) {
+						cout << "The " + splitString(tempOb->getName(), ' ')[0] + " is now out.\n";
 					}
 					else {
-						tempOb = recursiveFindByName(commands[2], room->getObjects());
+						cout << "The " + commands[2] + " is not lit.\n";
+					}
+				}
+				else {
+					tempOb = recursiveFindByName(commands[2], room->getObjects());
 
-						if (tempOb != nullptr) {
-							if (player->addObject(tempOb)) {
-								room->removeObject(tempOb);
-								cout << "Taken\n";
-								Object* container = nullptr;
-								for (Object* ob : room->getObjects()) {
-									container = recursiveFindContainer(tempOb, ob);
-									if (container != nullptr) {
-										container->takeOut(tempOb);
-										break;
-									}
+					if (tempOb != nullptr) {
+						if (player->addObject(tempOb)) {
+							room->removeObject(tempOb);
+							cout << "Taken\n";
+							Object* container = nullptr;
+							for (Object* ob : room->getObjects()) {
+								container = recursiveFindContainer(tempOb, ob);
+								if (container != nullptr) {
+									container->takeOut(tempOb);
+									break;
 								}
-								if (tempOb->putOut()) {
-									cout << "The " + splitString(tempOb->getName(), ' ')[0] + " is now out.\n";
-									if (!room->is_dark()) {
-										room->setDark(true);
-									}
-								}
-								else {
-									cout << "You can't put out the " + tempOb->getName() + "\n";
+							}
+							if (tempOb->putOut()) {
+								cout << "The " + splitString(tempOb->getName(), ' ')[0] + " is now out.\n";
+								if (!room->is_dark()) {
+									room->setDark(true);
 								}
 							}
 							else {
-								cout << "You can't pick up the " + commands[2] + " you are holding too much.\n";
+								cout << "You can't put out the " + tempOb->getName() + "\n";
 							}
 						}
 						else {
-							cout << "There is no " + commands[2] + " here.\n";
+							cout << "You can't pick up the " + commands[2] + " you are holding too much.\n";
 						}
 					}
+					else {
+						cout << "There is no " + commands[2] + " here.\n";
+					}
 				}
+			}
+			//The command wasn't recognized
+			else {
+				cout << "Invalid command\n";
+				continue;
 			}
 			
 			break;
 		case 4:
 			if (commands[0] == "take" && commands[2] == "from") {
-				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					Object* tempContainer = recursiveFindByName(commands[3], room->getObjects());
+				Object* tempContainer = recursiveFindByName(commands[3], room->getObjects());
+				if (tempContainer != nullptr) {
+					tempOb = findObject(commands[1], tempContainer->getInventory());
+					if (tempOb != nullptr) {
+						if (player->addObject(tempOb)) {
+							tempContainer->takeOut(tempOb);
+							cout << "Taken\n";
+						}
+						else {
+							cout << "You can't pick up the " + commands[1] + " you are holding too much.\n";
+						}
+					}
+					else {
+						cout << "Can't find the " + commands[1] + " in the " + commands[3] + ".\n";
+					}
+				}
+				else {
+					tempContainer = recursiveFindByName(commands[3], player->getInventory());
 					if (tempContainer != nullptr) {
 						tempOb = findObject(commands[1], tempContainer->getInventory());
 						if (tempOb != nullptr) {
@@ -560,35 +597,29 @@ int main() {
 						}
 					}
 					else {
-						tempContainer = recursiveFindByName(commands[3], player->getInventory());
-						if (tempContainer != nullptr) {
-							tempOb = findObject(commands[1], tempContainer->getInventory());
-							if (tempOb != nullptr) {
-								if (player->addObject(tempOb)) {
-									tempContainer->takeOut(tempOb);
-									cout << "Taken\n";
-								}
-								else {
-									cout << "You can't pick up the " + commands[1] + " you are holding too much.\n";
-								}
-							}
-							else {
-								cout << "Can't find the " + commands[1] + " in the " + commands[3] + ".\n";
-							}
-						}
-						else {
-							cout << "Can't find the " + commands[3] + ".\n";
-						}
+						cout << "Can't find the " + commands[3] + ".\n";
 					}
-				}
-				else {
-					cout << "You are dead.\n";
 				}
 			}
 			else if (commands[0] == "put" && commands[2] == "in") {
-				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					Object* tempContainer = recursiveFindByName(commands[3], room->getObjects());
+				Object* tempContainer = recursiveFindByName(commands[3], room->getObjects());
+				if (tempContainer != nullptr) {
+					tempOb = findObject(commands[1], player->getInventory());
+					if (tempOb != nullptr) {
+						if (tempContainer->putIn(tempOb)) {
+							player->removeObject(tempOb);
+							cout << "The " + commands[1] + " is in the " + commands[3] + "\n";
+						}
+						else {
+							cout << "You can't fit the " + commands[1] + " in the " + commands[3] + ".\n";
+						}
+					}
+					else {
+						cout << "You are not holding the " + commands[1] + ".\n";
+					}
+				}
+				else {
+					tempContainer = recursiveFindByName(commands[3], player->getInventory());
 					if (tempContainer != nullptr) {
 						tempOb = findObject(commands[1], player->getInventory());
 						if (tempOb != nullptr) {
@@ -605,30 +636,9 @@ int main() {
 						}
 					}
 					else {
-						tempContainer = recursiveFindByName(commands[3], player->getInventory());
-						if (tempContainer != nullptr) {
-							tempOb = findObject(commands[1], player->getInventory());
-							if (tempOb != nullptr) {
-								if (tempContainer->putIn(tempOb)) {
-									player->removeObject(tempOb);
-									cout << "The " + commands[1] + " is in the " + commands[3] + "\n";
-								}
-								else {
-									cout << "You can't fit the " + commands[1] + " in the " + commands[3] + ".\n";
-								}
-							}
-							else {
-								cout << "You are not holding the " + commands[1] + ".\n";
-							}
-						}
-						else {
-							cout << "Can't find the " + commands[3] + ".\n";
-						}
+						cout << "Can't find the " + commands[3] + ".\n";
 					}
-				}
-				else {
-					cout << "You are dead.\n";
-				}
+				}				
 			}
 			else if (commands[0] == "attack" && commands[2] == "with") {
 				Player* p = findPlayer("you", room->getPlayers());

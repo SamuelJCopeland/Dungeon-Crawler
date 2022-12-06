@@ -18,7 +18,7 @@ vector<Object*> Player::attack(Player* enemy, Object* weapon){
 		return enemy->takeHit(this, damage);
 	}
 	else {
-		cout << "You can't attack the " + enemy->getName() + " with " + weapon->getName() + ".\n";
+		cout << "You swing the " + weapon->getName() + " at the " + enemy->getName() + ", it has no effect.\n";
 	}
 }
 
