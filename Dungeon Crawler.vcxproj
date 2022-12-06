@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="container.h" />
     <ClInclude Include="food.h" />
+    <ClInclude Include="gameClock.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="npc.h" />
     <ClInclude Include="object.h" />
@@ -157,6 +158,9 @@
     <ClCompile Include="object.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="room.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="manual.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

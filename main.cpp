@@ -22,8 +22,6 @@
 
 using namespace std;
 
-//NEED TO MAKE IT SO THAT WHEN A COMMAND FAILS, THE GAME CLOCK DOES NOT TICK
-
 //This function is run every round to make sure that the player is still alive
 void checkAlive(Player* x, Room* room, Player* player, vector<Room*> rooms) {
 	if (x != nullptr && !x->isAlive()) {
@@ -159,6 +157,7 @@ int main() {
 		//0 words in the command
 		case 0:
 			cout << "Please enter a command:\n";
+			continue;
 			break;
 		//1 word in the command
 		case 1:
@@ -184,33 +183,20 @@ int main() {
 			}
 			//Describe what the player can see
 			else if (userInput == "look" || userInput == "l") {
-				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					cout << room->getDescription() << endl;
-				}
-				else {
-					cout << "You are dead.\n";
-				}
+				cout << room->getDescription() << endl;
+				continue;
 			}
 			//Describe the player's inventory
 			else if (userInput == "inventory" || userInput == "i") {
 				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					cout << "You are holding the following items: \n" + p->printInventory();
-				}
-				else {
-					cout << "You are dead.\n";
-				}
+				cout << "You are holding the following items: \n" + p->printInventory();
+				continue;
 			}
 			//Describe the player's health
 			else if (userInput == "medcheck" || userInput == "health" || userInput == "hp") {
 				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					cout << "You have " << p->getHP() << "/" << p->getMaxHealth() << " left.\n";
-				}
-				else {
-					cout << "You are dead.\n";
-				}
+				cout << "You have " << p->getHP() << "/" << p->getMaxHealth() << " left.\n";
+				continue;
 			}
 			//Allow time to pass
 			else if (userInput == "wait") {
@@ -370,35 +356,31 @@ int main() {
 			//Describe an object
 			else if (commands[0] == "examine") {
 				Player* p = findPlayer("you", room->getPlayers());
-				if (p != nullptr) {
-					tempOb = recursiveFindByName(commands[1], room->getObjects());
+				tempOb = recursiveFindByName(commands[1], room->getObjects());
+				if (tempOb != nullptr) {
+					cout << tempOb->getDescription() << endl;
+				}
+				else {
+					tempOb = recursiveFindByName(commands[1], player->getInventory());
 					if (tempOb != nullptr) {
 						cout << tempOb->getDescription() << endl;
 					}
 					else {
-						tempOb = recursiveFindByName(commands[1], player->getInventory());
-						if (tempOb != nullptr) {
-							cout << tempOb->getDescription() << endl;
+						for (Player* p : room->getPlayers()) {
+							tempOb = recursiveFindByName(commands[1], p->getInventory());
+							if (tempOb != nullptr) {
+								cout << tempOb->getDescription() << endl;
+								break;
+							}
 						}
-						else {
-							for (Player* p : room->getPlayers()) {
-								tempOb = recursiveFindByName(commands[1], p->getInventory());
-								if (tempOb != nullptr) {
-									cout << tempOb->getDescription() << endl;
-									break;
-								}
-							}
-							if (tempOb == nullptr) {
-								cout << "There is no " + commands[1] + " here.\n";
-							}
+						if (tempOb == nullptr) {
+							cout << "There is no " + commands[1] + " here.\n";
+						}
 
-						}
-						
 					}
+						
 				}
-				else {
-					cout << "You are dead.\n";
-				}
+				continue;
 			}
 			else if (commands[0] == "eat") {
 				Player* p = findPlayer("you", room->getPlayers());

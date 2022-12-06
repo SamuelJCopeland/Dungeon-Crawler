@@ -1,3 +1,10 @@
+/*
+* Copyright: Samuel Copeland
+* Date: 12/05/2022
+*
+* File: parser.h
+*/
+
 #include <vector>
 #include <string>
 
@@ -28,8 +35,8 @@ public:
 
 	}
 	
-	//Looks for a substring in a string, if the substring is found, return the endex of the start of that substring in the string
-	//otherwise, return -1
+	//Looks for a substring in a string, if the substring is found, return the index of the start of that
+	//substring in the string otherwise, return -1
 	static int locateSubstr(string baseString, string subString, int start = 0) {
 		for (int i = start; i < baseString.size() - subString.size()+1; i++) {
 			bool match = true;
@@ -48,15 +55,18 @@ public:
 
 	//Implements the functionality of Python subrange (e.g. s[:-1]) for strings
 	static string getSubstringRange(string s, int start, int end) {
-		string result = "";			
+		string result = "";
 
+		//Handles negative indexes
 		if (end < 0) {
 			end = s.size() + end + 1;
 		}
+		//makes sure that we don't overflow the string.
 		else if (end > s.size()) {
 			return "";
 		}
 
+		//Create the substring
 		for (int i = start; i < end; i++) {
 			result += s[i];
 		}
