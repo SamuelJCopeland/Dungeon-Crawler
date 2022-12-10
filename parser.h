@@ -72,6 +72,22 @@ public:
 		}
 		return result;
 	}
+
+	static vector<string> parseInput(string input) {
+		//Convert the input to lowercase
+		for (int i = 0; i < input.size(); i++) {
+			input[i] = tolower(input[i]);
+		}
+		vector<string> commands = split(input, " ");
+
+		//Remove "the", "and", "a"
+		for (int i = 0; i < commands.size(); i++) {
+			if (commands[i] == "the" || commands[i] == "and" || commands[i] == "a") {
+				commands.erase(commands.begin() + i);
+			}
+		}
+		return commands;
+	}
 };
 
 

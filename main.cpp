@@ -140,24 +140,15 @@ int main() {
 	//Main game loop
 	string userInput;
 	bool cont = true;
+	Parser parser;
 	while (cont) {
 		bool newRoom = false;
 		getline(cin, userInput);
 
-		//Convert the user input to lowercase
-		for (int i = 0; i < userInput.size(); i++) {
-			userInput[i] = tolower(userInput[i]);
-		}
 
 		//Split the string into a vector of words
-		vector<string> commands = splitString(userInput, ' ');
+		vector<string> commands = parser.parseInput(userInput);		
 
-		//Remove "the"
-		for (int i = 0; i < commands.size(); i++) {
-			if (commands[i] == "the") {
-				commands.erase(commands.begin() + i);
-			}
-		}
 
 		//Depending on how many words are in the command, try different possible commands
 		switch (commands.size()) {
@@ -454,13 +445,11 @@ int main() {
 				}
 			}
 			else if (commands[0] == "attack") {
-				//NEED TO WORK ON THIS CASE... WAY TOO MANY EDGE CASES
 				cout << "Attack with what?" << endl;
 				string weapon;
 				getline(cin, weapon);
-				for (int i = 0; i < weapon.size(); i++) {
-					weapon[i] = tolower(weapon[i]);
-				}
+				
+				weapon = parser.parseInput(weapon)[0];
 
 				Player* e = findPlayer(commands[1], room->getPlayers());
 				bool isDark = room->is_dark();
