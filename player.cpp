@@ -1,7 +1,13 @@
 #include "player.h"
+
 #include <time.h>
 #include <iostream>
 #include <algorithm>
+#include <string>
+#include <vector>
+
+#include "object.h"
+#include "weapon.h"
 
 /*
 * Copyright: Samuel Copeland
@@ -10,107 +16,179 @@
 * File: player.cpp
 */
 
-vector<Object*> Player::attack(Player* enemy, Object* weapon){
-	double damage = weapon->getDamage();
-	if (damage > 0) {
-		//Total damage = base weapon damage * strength + d4
-		damage = damage * strength + rand() % 4 + 1;
-		return enemy->takeHit(this, damage);
-	}
-	else {
-		cout << "You swing the " + weapon->getName() + " at the " + enemy->getName() + ", it has no effect.\n";
-	}
-}
+Player::Player(std::string aName, double aHP, double aStrength, int aAgility, double aSizeCapacity, double aWeightCapacity)
+	: mName(aName)
+	, mSizeCapacity(aSizeCapacity)
+	, mWeightCapacity(aWeightCapacity)
+	, mHitpoints(aHP)
+	, mStrength(aStrength)
+	, mAgility(aAgility)
+	, mMaxHealth(aHP)
+{}
 
-vector<Object*> Player::takeHit(Player* enemy, double damage) {
-	int dodgeChance = this->agility;
-	if (dodgeChance < 0){
-		dodgeChance = 0;
-	}
-	srand(time(NULL));
-	
-	int damageChance = rand() % MAX_AGILITY + 1;
-
-	if (damageChance > dodgeChance) {
-		hitpoints -= damage;
-		if (hitpoints <= 0) {
-			cout << name << " " << "died.\n";
-			alive = false;
-			vector<Object*> temp = inventory;
-			inventory = vector<Object*>();
-			return temp;
-		}
-		else {
-			cout << enemy->getName() << " hit " << name << ".\n";
-		}
-	}
-	else {
-		cout << name << " dodged the attack.\n";
-	}
-	return vector<Object*>{};
-}
-
-bool Player::removeObject(Object* o){
-	vector<Object*>::iterator position = find(inventory.begin(), inventory.end(), o);
-	if (position != inventory.end()) {
-		inventory.erase(position);
-		weightCapacity += o->getWeight();
-		sizeCapacity += o->getSize();
-		return true;
-	}
-	return false;
-}
-
-bool Player::addObject(Object* o){
-	if (weightCapacity - o->getWeight() < 0 || sizeCapacity - o->getSize() < 0) {
-		return false;
-	}
-	else {
-		weightCapacity -= o->getWeight();
-		sizeCapacity -= o->getSize() < 0;
-		inventory.push_back(o);
-		return true;
-	}
-}
-
-string Player::printInventory()
+std::string Player::name()
 {
-	string iDescription = "";
-	
-	for (Object* o : inventory) {
-		iDescription += "\t" + o->getName();
-		if (o->is_open() && o->getInventory().size() > 0) {
+	return mName;
+}
+
+double Player::agility()
+{
+	return mAgility;
+}
+
+double Player::hp()
+{
+	return mHitpoints;
+}
+
+double Player::maxHP()
+{
+	return mMaxHealth;
+}
+
+std::vector<Object*> Player::inventory()
+{
+	return mInventory;
+}
+
+std::string Player::printInventory()
+{
+	std::string iDescription = "";
+
+	for (Object* o : mInventory) 
+	{
+		iDescription += "\t" + o->name();
+
+		if (o->isOpen() && o->inventory().size() > 0)
+		{
 			iDescription += o->printInventory("\t") + "\n";
 		}
-		else {
+		else
+		{
 			iDescription += "\n";
 		}
+
 	}
 
 	return iDescription;
 }
 
-string Player::getName(){
-	return name;
+void Player::hp(double health)
+{
+	mHitpoints = health;
 }
 
-double Player::getHP(){
-	return hitpoints;
+std::vector<Object*> Player::attack(Player* enemy, Object* weapon)
+{
+	double damage = weapon->damage();
+
+	if (damage > 0)
+	{
+		//Total damage = base weapon damage * strength + d4
+		damage = damage * mStrength + rand() % 4 + 1;
+		return enemy->takeHit(this, damage);
+	}
+	else
+	{
+		std::cout << "You swing the " + weapon->name() + " at the " + enemy->name() + ", it has no effect.\n";
+		return std::vector<Object*>();
+	}
+
 }
 
-double Player::getAgility(){
-	return agility;
+std::vector<Object*> Player::takeHit(Player* enemy, double damage) 
+{
+	int dodgeChance = this->mAgility;
+
+	if (dodgeChance < 0)
+	{
+		dodgeChance = 0;
+	}
+	
+	int damageChance = rand() % MAX_AGILITY + 1;
+
+	if (damageChance > dodgeChance)
+	{
+		mHitpoints -= damage;
+
+		if (mHitpoints <= 0) 
+		{
+			std::cout << mName << " " << "died.\n";
+			mAlive = false;
+			std::vector<Object*> temp = mInventory;
+			mInventory = std::vector<Object*>();
+			return temp;
+		}
+		else
+		{
+			std::cout << enemy->name() << " hit " << mName << ".\n";
+		}
+
+	}
+	else 
+	{
+		std::cout << mName << " dodged the attack.\n";
+	}
+
+	return std::vector<Object*>{};
 }
 
-Player* findPlayer(string name, vector<Player*> pl){
-	for (Player* p : pl) {
-		string pName = p->getName();
+bool Player::addObject(Object* o)
+{
+
+	if (mWeightCapacity - o->weight() < 0 || mSizeCapacity - o->size() < 0)
+	{
+		return false;
+	}
+	else
+	{
+		mWeightCapacity -= o->weight();
+		mSizeCapacity -= o->size() < 0;
+		mInventory.push_back(o);
+		return true;
+	}
+
+}
+
+bool Player::removeObject(Object* o)
+{
+	std::vector<Object*>::iterator position = std::find(mInventory.begin(), mInventory.end(), o);
+
+	if (position != mInventory.end())
+	{
+		mInventory.erase(position);
+		mWeightCapacity += o->weight();
+		mSizeCapacity += o->size();
+		return true;
+	}
+
+	return false;
+}
+
+bool Player::isAlive()
+{
+	return mAlive;
+}
+
+std::vector<Object*> Player::update(std::vector<Player*> players) 
+{
+	return std::vector<Object*>{}; 
+}
+
+Player* Player::findPlayer(std::string name, std::vector<Player*> pl)
+{
+
+	for (Player* p : pl) 
+	{
+		std::string pName = p->name();
 		size_t found = pName.find(" (");
 
-
-		if (pName == name) {
+		if (pName == name) 
+		{
 			return p;
 		}
+
 	}
+
 	return nullptr;
 }

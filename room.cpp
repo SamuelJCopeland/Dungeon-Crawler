@@ -1,6 +1,14 @@
 #include"room.h"
+
 #include <map>
 #include <algorithm>
+#include <string>
+#include <vector>
+
+
+#include "path.h"
+#include "object.h"
+#include "player.h"
 
 /*
 * Copyright: Samuel Copeland
@@ -9,90 +17,160 @@
 * File: room.cpp
 */
 
-using namespace std;
+Room::Room(std::string aName, std::string aDescription, std::vector<Path*> aPaths, std::vector<Player*> aPlayers, std::vector<Object*> aObjects, bool aCanDark, bool aIsDark)
+	: mName(aName)
+	, mDescription(aDescription)
+	, mIsDark(aIsDark)
+	, mCanDark(aCanDark)
+	, mPaths(aPaths)
+	, mObjects(aObjects)
+	, mPlayers(aPlayers)
+{}
 
-string Room::getDescription(){
-	map<int, string> dirMap;
-	dirMap.insert(pair<int, string>(0, "north"));
-	dirMap.insert(pair<int, string>(1, "northeast"));
-	dirMap.insert(pair<int, string>(2, "east"));
-	dirMap.insert(pair<int, string>(3, "southeast"));
-	dirMap.insert(pair<int, string>(4, "south"));
-	dirMap.insert(pair<int, string>(5, "southwest"));
-	dirMap.insert(pair<int, string>(6, "west"));
-	dirMap.insert(pair<int, string>(7, "northwest"));
-	dirMap.insert(pair<int, string>(8, "up"));
-	dirMap.insert(pair<int, string>(9, "down"));
-	string fullDes;
-	if (!isDark) {
-		fullDes = name + "\n" + description;
+std::string Room::name()
+{
+	return mName;
+}
 
-		for (Path* p : paths) {
-			if (p->getName()[0] == 'a' || p->getName()[0] == 'e' || p->getName()[0] == 'i' || p->getName()[0] == 'o' || p->getName()[0] == 'u') {
-				fullDes += "\nThere is an " + p->getName() + " to your " + dirMap[p->getDir()];
+std::string Room::description()
+{
+
+	std::string fullDes;
+
+	if (!mIsDark) 
+	{
+		fullDes = mName + "\n" + mDescription;
+
+		for (Path* p : mPaths) 
+		{
+
+			if (p->name()[0] == 'a' || p->name()[0] == 'e' || p->name()[0] == 'i' || p->name()[0] == 'o' || p->name()[0] == 'u') 
+			{
+				fullDes += "\nThere is an " + p->name() + " to your " + Path::compassToString(p->dir());
 			}
-			else {
-				fullDes += "\nThere is a " + p->getName() + " to your " + dirMap[p->getDir()];
+			else 
+			{
+				fullDes += "\nThere is a " + p->name() + " to your " + Path::compassToString(p->dir());
 			}
 			
 		}
 
 		fullDes += "\nThere are the following items here:\n";
 
-		for (Object* o : objects) {
-			fullDes += "\t" + o->getName();
-			if (o->is_open() && o->getInventory().size() > 0) {
+		for (Object* o : mObjects) 
+		{
+			fullDes += "\t" + o->name();
+
+			if (o->isOpen() && o->inventory().size() > 0) 
+			{
 				fullDes += o->printInventory("\t") + "\n";
 			}
-			else {
+			else
+			{
 				fullDes += "\n";
 			}
+
 		}
 
-		for (Player* p : players) {
-			if (p->getName() != "you") {
-				fullDes += "There is a " + p->getName() + " here\n";
-				if (p->getInventory().size() > 0) {
-					fullDes += "The " + p->getName() + " is holding:\n" + p->printInventory() + "\n";
+		for (Player* p : mPlayers)
+		{
+
+			if (p->name() != "you") 
+			{
+				fullDes += "There is a " + p->name() + " here\n";
+
+				if (p->inventory().size() > 0) 
+				{
+					fullDes += "The " + p->name() + " is holding:\n" + p->printInventory() + "\n";
 				}
+
 			}
+
 		}
+
 	}
-	else {
-		fullDes = name + "\nIt is too dark to see anything.\n";
+	else
+	{
+		fullDes = mName + "\nIt is too dark to see anything.\n";
 	}
+
 	return fullDes;
 }
 
-void Room::addObject(Object* o){
-	objects.push_back(o);
+bool Room::isDark()
+{
+	return mIsDark;
 }
 
-void Room::removeObject(Object* o){
-	vector<Object*>::iterator position = find(objects.begin(), objects.end(), o);
-	if (position != objects.end()) {
-		objects.erase(position);
+std::vector<Path*> Room::paths()
+{
+	return mPaths;
+}
+
+std::vector<Player*> Room::players()
+{
+	return mPlayers;
+}
+
+std::vector<Object*> Room::objects()
+{
+	return mObjects;
+}
+
+void Room::isDark(bool dark)
+{
+
+	if (mCanDark)
+	{
+		mIsDark = dark;
 	}
+
 }
 
-void Room::addPlayer(Player* p){
-	players.push_back(p);
+void Room::addObject(Object* o)
+{
+	mObjects.push_back(o);
 }
 
-void Room::removePlayer(Player* p) {
-	vector<Player*>::iterator position = find(players.begin(), players.end(), p);
-	if (position != players.end()) {
-		players.erase(position);
+void Room::removeObject(Object* o)
+{
+	std::vector<Object*>::iterator position = std::find(mObjects.begin(), mObjects.end(), o);
+
+	if (position != mObjects.end()) 
+	{
+		mObjects.erase(position);
 	}
+
 }
 
-void Room::addPath(Path* p){
-	paths.push_back(p);
+void Room::addPlayer(Player* p)
+{
+	mPlayers.push_back(p);
 }
 
-void Room::removePath(Path* p){
-	vector<Path*>::iterator position = find(paths.begin(), paths.end(), p);
-	if (position != paths.end()) {
-		paths.erase(position);
+void Room::removePlayer(Player* p) 
+{
+	std::vector<Player*>::iterator position = std::find(mPlayers.begin(), mPlayers.end(), p);
+
+	if (position != mPlayers.end()) 
+	{
+		mPlayers.erase(position);
 	}
+
+}
+
+void Room::addPath(Path* p)
+{
+	mPaths.push_back(p);
+}
+
+void Room::removePath(Path* p)
+{
+	std::vector<Path*>::iterator position = std::find(mPaths.begin(), mPaths.end(), p);
+
+	if (position != mPaths.end()) 
+	{
+		mPaths.erase(position);
+	}
+
 }

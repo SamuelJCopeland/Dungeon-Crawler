@@ -1,11 +1,3 @@
-#ifndef ROOM_H
-#define ROOM_H
-
-#include<string>
-#include <vector>
-#include "path.h"
-#include "player.h"
-
 /*
 * Copyright: Samuel Copeland
 * Date: 3/15/2021
@@ -13,60 +5,69 @@
 * File: room.h
 */
 
-using namespace std;
+#ifndef ROOM_H
+#define ROOM_H
 
-class Room {
+#include<string>
+#include <vector>
+
+class Object;
+class Player;
+class Path;
+
+class Room 
+{
 public:
-	Room(string n = "Blank Room", string d = "You are in a formless void. There is nothing but darkness in all directions", vector<Path*> p = {}, vector<Player*> plyrs = {}, vector<Object*> o = {}, bool cDark = false, bool dark = false) {
-		name = n;
-		description = d;
-		paths = p;
-		objects = o;
-		players = plyrs;
-		canDark = cDark;
-		isDark = dark;
-	}
 
-	string getDescription();
-	string getName() {
-		return name;
-	}
-	vector<Path*> getPaths() {
-		return paths;
-	}
-	vector<Player*> getPlayers() {
-		return players;
-	}
-	vector<Object*> getObjects() {
-		return objects;
-	}
+	Room(std::string aName = "Blank Room", std::string aDescription = "You are in a formless void. There is nothing but darkness in all directions", 
+		std::vector<Path*> aPaths = {}, std::vector<Player*> aPlayers = {}, std::vector<Object*> aObjects = {}, bool aCanDark = false, bool aIsDark = false);
+
+	std::string name();
+
+	std::string description();
+
+	bool isDark();
+
+	std::vector<Path*> paths();
+
+	std::vector<Player*> players();
+
+	std::vector<Object*> objects();
+
+	void isDark(bool dark);
+
 	void addObject(Object* o);
+
 	void removeObject(Object* o);
+
 	void addPlayer(Player* p);
+
 	void removePlayer(Player* p);
+
 	void addPath(Path* p);
+
 	void removePath(Path* p);
-	void setDark(bool dark) {
-		if (canDark) {
-			isDark = dark;
-		}
-	}
-	bool is_dark() {
-		return isDark;
-	}
+
 private:
+
 	//The name of the room
-	string name;
+	std::string mName;
+
 	//A description of the room
-	string description;
+	std::string mDescription;
+
 	//vector of any paths out of the room
-	vector<Path*> paths;
+	std::vector<Path*> mPaths;
+
 	//vector of all items held in the room
-	vector<Object*> objects;
+	std::vector<Object*> mObjects;
+
 	//vector of all players and npcs that are in the room
-	vector<Player*> players;
-	bool isDark;
-	bool canDark;
+	std::vector<Player*> mPlayers;
+
+	bool mIsDark;
+
+	bool mCanDark;
 };
 
 #endif

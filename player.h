@@ -1,15 +1,3 @@
-#ifndef PLAYER_H
-#define PLAYER_H
-
-#include<vector>
-#include <string>
-#include <time.h>
-#include <iostream>
-#include <algorithm>
-#include "weapon.h"
-
-#define MAX_AGILITY 50
-
 /*
 * Copyright: Samuel Copeland
 * Date: 3/15/2021
@@ -17,91 +5,79 @@
 * File: player.h
 */
 
-using namespace std;
+#ifndef PLAYER_H
+#define PLAYER_H
 
-class Player {
+#include<vector>
+#include <string>
+
+#define MAX_AGILITY 50
+
+class Object;
+class Weapon;
+
+class Player
+{
 public:
-	Player(string n = "you", double hp = 25, double s = 1, int a = 5, double sC = 20, double wC = 50) {
-		name = n;
-		sizeCapacity = sC;
-		weightCapacity = wC;
-		hitpoints = hp;
-		strength = s;
-		agility = a;
-		maxHealth = hp;
-	}
+
+	Player(std::string aName = "you", double aHP = 25, double aStrength = 1, int aAgility = 5, double aSizeCapacity = 20, double aWeightCapacity = 50);
+
+	std::string name();
+
+	double agility();
+
+	double hp();
+
+	double maxHP();
+
+	std::vector<Object*> inventory();
+
+	std::string printInventory();
+
+	void hp(double health);
+
 	//This player attacks another player
-	vector<Object*> attack(Player* enemy, Object* weapon);
+	std::vector<Object*> attack(Player* enemy, Object* weapon);
+
 	//The enemy attacks the player return inventory if the player dies
-	virtual vector<Object*> takeHit(Player* enemy, double damage);
+	virtual std::vector<Object*> takeHit(Player* enemy, double damage);
+
+	bool addObject(Object* o);
 	
 	bool removeObject(Object* o);
-	bool addObject(Object* o);
-	bool isAlive() {
-		return alive;
-	}
 
-	string printInventory();
-	string getName();
-	double getHP();
-	void setHP(double health) {
-		hitpoints = health;
-	}
-	double getAgility();
-	double getMaxHealth() {
-		return maxHealth;
-	}
+	bool isAlive();
 
-	vector<Object*> getInventory() {
-		return inventory;
-	}
+	virtual std::vector<Object*> update(std::vector<Player*> players);
 
-	virtual vector<Object*> update(vector<Player*> players) { return vector<Object*>{}; }
+	static Player* findPlayer(std::string name, std::vector<Player*> pl);
 
 protected:
-	string name;
+
+	std::string mName;
+
 	//How much size the player can hold
-	double sizeCapacity;
+	double mSizeCapacity;
+
 	//How much weight the player can hold
-	double weightCapacity;
+	double mWeightCapacity;
+
 	//How much health the player has
-	double hitpoints;
+	double mHitpoints;
+
 	//How strong the player is
-	double strength;
+	double mStrength;
+
 	//How easily the player can dodge attacks
-	int agility;
+	int mAgility;
+
 	//What the player has in their inventory
-	vector<Object*> inventory;
-	bool alive = true;
-	double maxHealth;
+	std::vector<Object*> mInventory;
+
+	bool mAlive = true;
+
+	double mMaxHealth;
+
 };
-
-class PC : public Player {
-public:
-	vector<Object*> takeHit(Player* enemy, double damage) {
-		int agility = this->agility;
-		srand(time(NULL));
-
-		int damageChance = rand() % 20 + 1 + enemy->getAgility() - (rand() % 20 + 1 + agility);
-
-		if (damageChance > 0) {
-			hitpoints -= damage;
-			if (hitpoints <= 0) {
-				cout << "You died.\n";
-				alive = false;
-				return inventory;
-			}
-			else {
-				cout << "The " + enemy->getName() + " hit " << name << ".\n";
-			}
-		}
-		else {
-			cout << "You dodged the attack.\n";
-		}
-		return vector<Object*>{};
-	}
-};
-
-Player* findPlayer(string name, vector<Player*> pl);
 
 #endif

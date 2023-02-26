@@ -1,5 +1,3 @@
-#include <string>
-
 /*
 * Copyright: Samuel Copeland
 * Date: 3/15/2021
@@ -7,35 +5,53 @@
 * File: path.h
 */
 
-using namespace std;
-
 #ifndef PATH_H
 #define PATH_H
+
+#include <string>
+
 class Room;
 
-class Path {
+enum class Compass
+{
+	NORTH,
+	NORTHEAST,
+	EAST,
+	SOUTHEAST,
+	SOUTH,
+	SOUTHWEST,
+	WEST,
+	NORTHWEST,
+	UP,
+	DOWN,
+
+	INVALIDDIRECTION,
+};
+
+class Path 
+{
 public:
-	Path(string n = "Generic Path", int d = 0, Room* r = nullptr) {
-		direction = d;
-		attachedRoom = r;
-		name = n;
-	}
-	Room* travel() {
-		return attachedRoom;
-	}
-	int getDir() {
-		return direction;
-	}
-	string getName() {
-		return name;
-	}
-	void setRoom(Room* r) {
-		attachedRoom = r;
-	}
+
+	Path(std::string aName = "Generic Path", Compass aDirection = Compass::NORTH, Room* aRoom = nullptr);
+
+	Compass dir();
+
+	std::string name();
+
+	void room(Room* aRoom);
+
+	static std::string compassToString(Compass aCompass);
+
+	static Compass stringToCompass(std::string aInput);
+
+	Room* travel();
+
 private:
-	int direction;
-	Room* attachedRoom;
-	string name;
+
+	Compass mDirection;
+	Room* mAttachedRoom;
+	std::string mName;
+
 };
 
 

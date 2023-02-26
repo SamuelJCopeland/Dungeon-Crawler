@@ -1,7 +1,12 @@
 #include "npc.h"
+
 #include <time.h>
 #include <iostream>
 #include <algorithm>
+#include <vector>
+#include <string>
+
+#include "weapon.h"
 
 /*
 * Copyright: Samuel Copeland
@@ -10,67 +15,74 @@
 * File: npc.cpp
 */
 
-using namespace std;
+NPC::NPC(std::string aName, double aHp, double aStrength, int aAgility, double aSizeCapacity, double aWeightCapacity, Aggression aAggression) 
+	: Player(aName, aHp, aStrength, aSizeCapacity, aWeightCapacity)
+	, mAggression(aAggression)
+{}
 
-vector<Object*> NPC::takeHit(Player* enemy, double damage) {
-	int dodgeChance = this->agility;
-	
-	srand(time(NULL));
+std::vector<Object*> NPC::takeHit(Player* enemy, double damage) {
+	int dodgeChance = this->mAgility;
 
 	int damageChance = rand() % MAX_AGILITY + 1;
 
-	if (damageChance > dodgeChance) {
-		hitpoints -= damage;
-		if (hitpoints <= 0) {
-			cout << "The " << name << " " << "died.\n";
-			alive = false;
-			return inventory;
-		}
-		else {
-			cout << enemy->getName() << " hit the " << name << ".\n";
-		}
-	}
-	else {
-		cout << "The " << name << " dodged the attack.\n";
-	}
-	if (aggression == NEUTERAL) {
-		aggression = AGGRESSIVE;
-		/*
-		Weapon* fist = new Weapon("fist", 0, 0, "", .5);
-		Object* maxWeapon = fist;
-		for (Object* o : inventory) {
-			if (o->getDamage() > maxWeapon->getDamage()) {
-				maxWeapon = o;
-			}
-		}
-		vector<Object*> loot = attack(enemy, maxWeapon);
-		delete fist;
+	if (damageChance > dodgeChance) 
+	{
+		mHitpoints -= damage;
 
-		if (loot.size() > 0) {
-			return loot;
+		if (mHitpoints <= 0) 
+		{
+			std::cout << "The " << mName << " " << "died.\n";
+			mAlive = false;
+			return mInventory;
 		}
-		*/
+		else 
+		{
+			std::cout << enemy->name() << " hit the " << mName << ".\n";
+		}
+
+	}
+	else
+	{
+		std::cout << "The " << mName << " dodged the attack.\n";
 	}
 
-	return vector<Object*>{};
+	if (mAggression == Aggression::NEUTERAL) 
+	{
+		mAggression = Aggression::AGGRESSIVE;		
+	}
+
+	return std::vector<Object*>{};
 }
 
-vector<Object*> NPC::update(vector<Player*> players) {
-	if (aggression == AGGRESSIVE) {
+std::vector<Object*> NPC::update(std::vector<Player*> players) 
+{
+
+	if (mAggression == Aggression::AGGRESSIVE)
+	{
 		Player* player = findPlayer("you", players);
-		if (player != nullptr) {
+
+		if (player != nullptr) 
+		{
 			Weapon* fist = new Weapon("fist", 0, 0, "", .5);
 			Object* maxWeapon = fist;
-			for (Object* o : inventory) {
-				if (o->getDamage() > maxWeapon->getDamage()) {
+
+			for (Object* o : mInventory)
+			{
+
+				if (o->damage() > maxWeapon->damage())
+				{
 					maxWeapon = o;
 				}
+
 			}
-			vector<Object*> loot = attack(player, maxWeapon);
+
+			std::vector<Object*> loot = attack(player, maxWeapon);
 			delete fist;
 
 			return loot;
 		}
+
 	}
-	return vector<Object*>{};
+
+	return std::vector<Object*>{};
 }

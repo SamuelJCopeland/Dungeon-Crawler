@@ -5,90 +5,52 @@
 * File: parser.h
 */
 
-#include <vector>
-#include <string>
-
-using namespace std;
-
 #ifndef PARSER_H
 #define PARSER_H
 
-class Parser {
+#include<string>
+#include<vector>
+
+class  UnhandledEscapeCharacter : public std::exception
+{
 public:
-	//Implementation of a function similar to the Python string.split() function
-	static vector<string> split(string s, string delimiter) {
-		vector<string> result;
-		int i = 0;
-		while (i < s.size()) {
-			int splitIndex = locateSubstr(s, delimiter, i);
-			if (splitIndex > -1) {
-				result.push_back(getSubstringRange(s, i, splitIndex));
-				i = splitIndex + delimiter.size();
-			}
-			else {
-				result.push_back(getSubstringRange(s, i, -1));
-				break;
-			}
-		}
-
-		return result;
-
-	}
-	
-	//Looks for a substring in a string, if the substring is found, return the index of the start of that
-	//substring in the string otherwise, return -1
-	static int locateSubstr(string baseString, string subString, int start = 0) {
-		for (int i = start; i < baseString.size() - subString.size()+1; i++) {
-			bool match = true;
-			for (int j = 0; j < subString.size(); j++) {
-				if (baseString[i+j] != subString[j]) {
-					match = false;
-					break;
-				}
-			}
-			if (match) {
-				return i;
-			}
-		}
-		return -1;
+	UnhandledEscapeCharacter(int aPosition)
+	{
+		mError = "Unhandled \\ at " + std::to_string(aPosition);
 	}
 
-	//Implements the functionality of Python subrange (e.g. s[:-1]) for strings
-	static string getSubstringRange(string s, int start, int end) {
-		string result = "";
-
-		//Handles negative indexes
-		if (end < 0) {
-			end = s.size() + end + 1;
-		}
-		//makes sure that we don't overflow the string.
-		else if (end > s.size()) {
-			return "";
-		}
-
-		//Create the substring
-		for (int i = start; i < end; i++) {
-			result += s[i];
-		}
-		return result;
+	std::string what()
+	{
+		return mError;
 	}
 
-	static vector<string> parseInput(string input) {
-		//Convert the input to lowercase
-		for (int i = 0; i < input.size(); i++) {
-			input[i] = tolower(input[i]);
-		}
-		vector<string> commands = split(input, " ");
-
-		//Remove "the", "and", "a"
-		for (int i = 0; i < commands.size(); i++) {
-			if (commands[i] == "the" || commands[i] == "and" || commands[i] == "a") {
-				commands.erase(commands.begin() + i);
-			}
-		}
-		return commands;
-	}
+private:
+	std::string mError;
 };
 
+class  Parser
+{
+public:
+
+	// Prepends a given prefix to lines in a string
+	static std::string prependLines(const std::string& aInput, const std::string& aPrefix);
+
+	// This function will not handle \a, \b, or \f
+	static std::string handleEscapeChars(const std::string& aInput);
+
+	// Implementation of a function similar to the Python string.split() function
+	static std::vector<std::string> split(const std::string& aS, const std::string& aDelimiter);
+
+	// Looks for a substring in a string, if the substring is found, return the index of the start of that
+	// substring in the string otherwise, return -1
+	static int locateSubstr(const std::string& aBaseString, const std::string& aSubString, int aStart = 0);
+
+	// Implements the functionality of Python subrange (e.g. s[:-1]) for strings
+	static std::string getSubstringRange(const std::string& aS, int aStart, int aEnd);
+
+	static std::vector<std::string> parseInput(const std::string aInput);
+private:
+	static void handleBackslash(int aI, const std::string& aInput, std::string& aOutput);
+};
 
 #endif

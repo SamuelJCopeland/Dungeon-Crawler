@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include <vector>
 
 /*
@@ -9,170 +8,93 @@
 * File: object.h
 */
 
-using namespace std;
-
 #ifndef OBJECT_H
 #define OBJECT_H
+
 class Player;
 
-class Object {
+class Object
+{
 public:
-	Object(string n = "generic_object", double w = 1, double s = 1, string d = "There is nothing special about the generic_object.") {
-		name = n;
-		weight = w;
-		size = s;
-		description = d;
-	}
-	virtual bool light(Object* lightingObject);
-	virtual bool updateLight() {
-		return false;
-	}
-	virtual bool eat(Player* p) {
-		return false;
-	}
-	virtual bool isLitCanLight(Object* o) {
-		return false;
-	}
+
+	// Object stuff
+	Object(std::string aName = "generic_object", double aWeight = 1, double aSize = 1, std::string aDescription = "There is nothing special about the generic_object.");
+
+	virtual std::string name();
+
+	virtual std::string description();
+
+	double weight();
+
+	double size();
+
+	virtual bool addToContainer(Object* aContainer);
+
+	virtual void leaveContainers();
+
+	// Container stuff
+	virtual double capacity();
+
+	virtual std::vector<Object*> inventory();
+
+	virtual double internalSize();
+
+	virtual int timeTilDead();
+
+	virtual bool isOpen();
+
+	virtual bool open();
+
+	virtual bool close();
+
+	virtual bool addObject(Object* aObject);
+
+	virtual bool removeObject(Object* aObject);
+
+	virtual bool addSize(Object* aObject);
+
+	virtual void subSize(Object* aObject);
+
+	virtual std::string printInventory(std::string aIndent);
+
+	// Weapon stuff
+	virtual double damage();
+
+	// Light stuff
+	virtual bool isLitCanLight(Object* aO);
+
+	virtual bool light(Object * aLightingObject);
+
 	virtual bool putOut();
-	virtual double getDamage();
-	virtual string getDescription();
-	virtual double getCapacity();
-	virtual bool putIn(Object* thingToPutIn);
-	virtual bool takeOut(Object* thingToTakeOut);
-	virtual vector<Object*> getInventory() {
-		return vector<Object*> {};
-	}
-	virtual bool is_open() {
-		return false;
-	}
-	virtual double getInternalSize() {
-		return 0;
-	}
-virtual bool open() {
-	return false;
-}
-virtual int time_til_dead() {
-	return 10000;
-}
-virtual bool close() {
-	return false;
-}
-virtual string getName();
-virtual string printInventory(string tabs) {
-	return "";
-}
-virtual void subSize(Object* o) {}
 
-virtual void leaveContainers() {
-	for (int i = 0; i < inContainers.size(); i++) {
-		inContainers[i]->subSize(this);
-	}
-	inContainers = {};
-}
-virtual bool addSize(Object* o) {
-	return false;
-}
-virtual bool addContainer(Object* c) {
-	if (c->addSize(this)) {
-		inContainers.push_back(c);
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-double getWeight();
-double getSize();
+	virtual bool updateLight();
+
+	// Food stuff
+	virtual bool eat(Player * aPlayer);
+
+	// Helper functions
+	static Object* findObject(std::string aName, std::vector<Object*> aObject);
+
+	static std::vector<Object*> recursiveFindObjects(std::vector<Object*> aObject);
+
+	static Object* recursiveFindContainer(Object * aFindOb, Object * aContainingObject);
+
+	static Object* recursiveFindByName(std::string aName, std::vector<Object*> aContainingObject);
+
 protected:
+
 	//The name of the object
-	string name;
+	std::string mName;
+
 	//How heavy the object is
-	double weight;
+	double mWeight;
+
 	//How big the object is
-	double size;
-	string description;
-	vector<Object*> inContainers = {};
+	double mSize;
+
+	std::string mDescription;
+
+	std::vector<Object*> inContainers = {};
 };
-
-static Object* findObject(string name, vector<Object*> ob) {
-	for (Object* o : ob) {
-		string oName = o->getName();
-		size_t found = oName.find(" (");
-		if (found != string::npos) {
-			oName = oName.substr(0, (found - 0));
-		}
-
-		if (oName == name) {
-			return o;
-		}
-	}
-	return nullptr;
-}
-
-static vector<Object*> recursiveFindObjects(vector<Object*> ob) {
-	vector<Object*> objects = {};
-	for (Object* o : ob) {
-		objects.push_back(o);
-		if (o->is_open()) {
-			for (Object* obj : recursiveFindObjects(o->getInventory())) {
-				objects.push_back(obj);
-			}
-		}
-		else if (o->open()) {
-			o->close();
-		}
-	}
-	return objects;
-}
-
-//Function to split a string based on a char
-static vector<string> splitString(string s, char c) {
-	vector<string> stringV = {};
-	string temp = "";
-	for (char ch : s) {
-		if (ch == c) {
-			stringV.push_back(temp);
-			temp = "";
-		}
-		else {
-			temp += ch;
-		}
-	}
-	stringV.push_back(temp);
-	return stringV;
-}
-
-static Object* recursiveFindContainer(Object* findOb, Object* o) {
-	Object* container = nullptr;
-	for (Object* ob : o->getInventory()) {
-
-		if (ob == findOb) {
-			return o;
-		}
-		else {
-			container = recursiveFindContainer(findOb, ob);
-		}
-	}
-	return container;
-}
-
-static Object* recursiveFindByName(string n, vector<Object*> o) {
-	Object* result = nullptr;
-	for (Object* ob : o) {
-		result = recursiveFindByName(n, ob->getInventory());
-		if (result != nullptr) {
-			return result;
-		}
-	}
-
-	if (result == nullptr) {
-		result = findObject(n, o);
-	}
-
-	if (result != nullptr){
-		return result;
-	}
-	return result;
-}
 
 #endif
